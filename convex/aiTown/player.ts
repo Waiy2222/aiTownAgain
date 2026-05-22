@@ -5,8 +5,6 @@ import { playerId } from './ids';
 import {
   PATHFINDING_TIMEOUT,
   PATHFINDING_BACKOFF,
-  HUMAN_IDLE_TOO_LONG,
-  MAX_HUMAN_PLAYERS,
   MAX_PATHFINDS_PER_STEP,
 } from '../constants';
 import { pointsEqual, pathPosition } from '../util/geometry';
@@ -81,10 +79,8 @@ export class Player {
     this.speed = speed;
   }
 
-  tick(game: Game, now: number) {
-    if (this.human && this.lastInput < now - HUMAN_IDLE_TOO_LONG) {
-      this.leave(game, now);
-    }
+  tick(_game: Game, _now: number) {
+    // No-op: AI agents handle their own lifecycle via Agent.tick()
   }
 
   tickPathfinding(game: Game, now: number) {
@@ -171,22 +167,7 @@ export class Player {
     name: string,
     character: string,
     description: string,
-    tokenIdentifier?: string,
   ) {
-    if (tokenIdentifier) {
-      let numHumans = 0;
-      for (const player of game.world.players.values()) {
-        if (player.human) {
-          numHumans++;
-        }
-        if (player.human === tokenIdentifier) {
-          throw new Error(`You are already in this game!`);
-        }
-      }
-      if (numHumans >= MAX_HUMAN_PLAYERS) {
-        throw new Error(`Only ${MAX_HUMAN_PLAYERS} human players allowed at once.`);
-      }
-    }
     let position;
     for (let attempt = 0; attempt < 10; attempt++) {
       const candidate = {
@@ -217,7 +198,6 @@ export class Player {
       playerId,
       new Player({
         id: playerId,
-        human: tokenIdentifier,
         lastInput: now,
         position,
         facing,
@@ -269,10 +249,9 @@ export const playerInputs = {
       name: v.string(),
       character: v.string(),
       description: v.string(),
-      tokenIdentifier: v.optional(v.string()),
     },
     handler: (game, now, args) => {
-      Player.join(game, now, args.name, args.character, args.description, args.tokenIdentifier);
+      Player.join(game, now, args.name, args.character, args.description);
       return null;
     },
   }),

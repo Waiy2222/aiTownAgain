@@ -2,7 +2,7 @@ import { ConvexError, v } from 'convex/values';
 import { DatabaseReader, MutationCtx, internalAction, mutation, query } from '../_generated/server';
 import { insertInput } from './insertInput';
 import { Game } from './game';
-import { internal } from '../_generated/api';
+import { internal, api } from '../_generated/api';
 import { sleep } from '../util/sleep';
 import { Id } from '../_generated/dataModel';
 import { ENGINE_ACTION_DURATION } from '../constants';
@@ -86,6 +86,12 @@ export async function stopEngine(ctx: MutationCtx, worldId: Id<'worlds'>) {
   await ctx.db.patch(engineId, { running: false });
 }
 
+const SPEED_INTERVAL: Record<string, number> = {
+  '1x': 1000,
+  '2x': 500,
+  '5x': 200,
+};
+
 export const runStep = internalAction({
   args: {
     worldId: v.id('worlds'),
@@ -100,19 +106,29 @@ export const runStep = internalAction({
       });
       const game = new Game(engine, args.worldId, gameState);
 
-      let now = Date.now();
-      const deadline = now + args.maxDuration;
-      while (now < deadline) {
-        await game.runStep(ctx, now);
-        const sleepUntil = Math.min(now + game.stepDuration, deadline);
-        await sleep(sleepUntil - now);
-        now = Date.now();
-      }
-      await ctx.scheduler.runAfter(0, internal.aiTown.main.runStep, {
+      const simSpeed = await ctx.runQuery(api.world.getSimSpeed, {
         worldId: args.worldId,
-        generationNumber: game.engine.generationNumber,
-        maxDuration: args.maxDuration,
-      });
+      }) ?? '1x';
+      const stepInterval = SPEED_INTERVAL[simSpeed] ?? 1000;
+
+      if (simSpeed !== 'paused') {
+        let now = Date.now();
+        const deadline = now + args.maxDuration;
+        while (now < deadline) {
+          await game.runStep(ctx, now);
+          const sleepUntil = Math.min(now + stepInterval, deadline);
+          await sleep(sleepUntil - now);
+          now = Date.now();
+        }
+      }
+
+      if (simSpeed !== 'paused') {
+        await ctx.scheduler.runAfter(0, internal.aiTown.main.runStep, {
+          worldId: args.worldId,
+          generationNumber: game.engine.generationNumber,
+          maxDuration: args.maxDuration,
+        });
+      }
     } catch (e: unknown) {
       if (e instanceof ConvexError) {
         if (e.data.kind === 'engineNotRunning') {

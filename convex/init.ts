@@ -65,6 +65,7 @@ async function getOrCreateDefaultWorld(ctx: MutationCtx) {
     lastViewed: now,
     status: 'running',
     worldId: worldId,
+    simSpeed: '1x',
   });
   worldStatus = (await ctx.db.get(worldStatusId))!;
   await ctx.db.insert('maps', {

@@ -17,20 +17,20 @@ const logged = new Set<string>();
 
 export const Player = ({
   game,
-  isViewer,
   player,
   onClick,
   onHover,
   onHoverEnd,
+  isViewer,
   historicalTime,
 }: {
   game: ServerGame;
-  isViewer: boolean;
   player: ServerPlayer;
 
   onClick: SelectElement;
   onHover?: (name: string, model: string, screenX: number, screenY: number) => void;
   onHoverEnd?: () => void;
+  isViewer?: boolean;
   historicalTime?: number;
 }) => {
   const playerCharacter = game.playerDescriptions.get(player.id)?.character;
@@ -94,10 +94,10 @@ export const Player = ({
             ? player.activity?.emoji
             : undefined
         }
-        isViewer={isViewer}
         textureUrl={character.textureUrl}
         spritesheetData={character.spritesheetData}
         speed={character.speed}
+        isViewer={isViewer}
         onClick={() => {
           onClick({ kind: 'player', id: player.id });
         }}
