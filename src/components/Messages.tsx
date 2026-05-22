@@ -2,8 +2,6 @@ import clsx from 'clsx';
 import { Doc, Id } from '../../convex/_generated/dataModel';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { MessageInput } from './MessageInput';
-import { Player } from '../../convex/aiTown/player';
 import { Conversation } from '../../convex/aiTown/conversation';
 import { useEffect, useRef } from 'react';
 
@@ -21,8 +19,8 @@ export function Messages({
     | { kind: 'active'; doc: Conversation }
     | { kind: 'archived'; doc: Doc<'archivedConversations'> };
   inConversationWithMe: boolean;
-  humanPlayer?: Player;
   scrollViewRef: React.RefObject<HTMLDivElement>;
+  humanPlayer?: { id: string };
 }) {
   const humanPlayerId = humanPlayer?.id;
   const descriptions = useQuery(api.world.gameDescriptions, { worldId });
@@ -77,7 +75,7 @@ export function Messages({
             {new Date(m._creationTime).toLocaleString()}
           </time>
         </div>
-        <div className={clsx('bubble', m.author === humanPlayerId && 'bubble-mine')}>
+        <div className={clsx('bubble')}>
           <p className="bg-white -mx-3 -my-1">{m.text}</p>
         </div>
       </div>
@@ -153,13 +151,8 @@ export function Messages({
             </div>
           </div>
         )}
-        {humanPlayer && inConversationWithMe && conversation.kind === 'active' && (
-          <MessageInput
-            worldId={worldId}
-            engineId={engineId}
-            conversation={conversation.doc}
-            humanPlayer={humanPlayer}
-          />
+        {inConversationWithMe && conversation.kind === 'active' && (
+          <div className="text-brown-500 text-xs text-center mt-2">对话进行中…</div>
         )}
       </div>
     </div>
