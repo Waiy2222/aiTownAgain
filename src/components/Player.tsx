@@ -17,13 +17,11 @@ const logged = new Set<string>();
 
 export const Player = ({
   game,
-  isViewer,
   player,
   onClick,
   historicalTime,
 }: {
   game: ServerGame;
-  isViewer: boolean;
   player: ServerPlayer;
 
   onClick: SelectElement;
@@ -78,7 +76,6 @@ export const Player = ({
             ? player.activity?.emoji
             : undefined
         }
-        isViewer={isViewer}
         textureUrl={character.textureUrl}
         spritesheetData={character.spritesheetData}
         speed={character.speed}

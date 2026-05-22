@@ -17,6 +17,13 @@ crons.interval('restart dead worlds', { seconds: 60 }, internal.world.restartDea
 
 crons.daily('vacuum old entries', { hourUTC: 4, minuteUTC: 20 }, internal.crons.vacuumOldEntries);
 
+// 待 `npx convex dev` 生成类型后取消注释
+// crons.daily(
+//   'cleanup old conversation logs',
+//   { hourUTC: 3, minuteUTC: 30 },
+//   internal.conversationLogs.cleanupOldLogs,
+// );
+
 export default crons;
 
 const TablesToVacuum: TableNames[] = [

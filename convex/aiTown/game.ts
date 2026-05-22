@@ -273,6 +273,14 @@ export class Game extends AbstractGame {
           participants,
         };
         await ctx.db.insert('archivedConversations', archivedConversation);
+        await ctx.db.insert('conversationLogs', {
+          worldId,
+          conversationId: conversation.id,
+          participants,
+          startedAt: conversation.created,
+          endedAt: Date.now(),
+          messageCount: conversation.numMessages,
+        });
         for (let i = 0; i < participants.length; i++) {
           for (let j = 0; j < participants.length; j++) {
             if (i == j) {

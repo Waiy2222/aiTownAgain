@@ -22,6 +22,7 @@ export const aiTownTables = {
     engineId: v.id('engines'),
     lastViewed: v.number(),
     status: v.union(v.literal('running'), v.literal('stoppedByDeveloper'), v.literal('inactive')),
+    simSpeed: v.union(v.literal('paused'), v.literal('1x'), v.literal('2x'), v.literal('5x')),
   }).index('worldId', ['worldId']),
 
   // This table contains the map data for a given world. Since it's a bit larger than the player
@@ -66,6 +67,17 @@ export const aiTownTables = {
 
   // The agent layer wants to know what the last (completed) conversation was between two players,
   // so this table represents a labelled graph indicating which players have talked to each other.
+  conversationLogs: defineTable({
+    worldId: v.id('worlds'),
+    conversationId,
+    participants: v.array(playerId),
+    startedAt: v.number(),
+    endedAt: v.number(),
+    messageCount: v.number(),
+  })
+    .index('byWorldTime', ['worldId', 'startedAt'])
+    .index('byConversation', ['worldId', 'conversationId']),
+
   participatedTogether: defineTable({
     worldId: v.id('worlds'),
     conversationId,

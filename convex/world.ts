@@ -1,6 +1,5 @@
 import { ConvexError, v } from 'convex/values';
 import { internalMutation, mutation, query } from './_generated/server';
-import { characters } from '../data/characters';
 import { insertInput } from './aiTown/insertInput';
 import {
   DEFAULT_NAME,
@@ -94,20 +93,17 @@ export const restartDeadWorlds = internalMutation({
   },
 });
 
+/** @deprecated — 人类玩家系统已移除，此 query 不再使用 */
 export const userStatus = query({
   args: {
     worldId: v.id('worlds'),
   },
-  handler: async (ctx, args) => {
-    // const identity = await ctx.auth.getUserIdentity();
-    // if (!identity) {
-    //   return null;
-    // }
-    // return identity.tokenIdentifier;
-    return DEFAULT_NAME;
+  handler: async (_ctx, _args) => {
+    return null;
   },
 });
 
+/** @deprecated — 人类玩家系统已移除，此 mutation 不再使用 */
 export const joinWorld = mutation({
   args: {
     worldId: v.id('worlds'),
@@ -119,26 +115,21 @@ export const joinWorld = mutation({
     // }
     // const name =
     //   identity.givenName || identity.nickname || (identity.email && identity.email.split('@')[0]);
-    const name = DEFAULT_NAME;
-
-    // if (!name) {
-    //   throw new ConvexError(`Missing name on ${JSON.stringify(identity)}`);
-    // }
     const world = await ctx.db.get(args.worldId);
     if (!world) {
       throw new ConvexError(`Invalid world ID: ${args.worldId}`);
     }
-    // const { tokenIdentifier } = identity;
-    return await insertInput(ctx, world._id, 'join', {
-      name,
-      character: characters[Math.floor(Math.random() * characters.length)].name,
-      description: `${DEFAULT_NAME} is a human player`,
-      // description: `${identity.givenName} is a human player`,
-      tokenIdentifier: DEFAULT_NAME,
-    });
+    throw new ConvexError(`Human player joining is no longer supported.`);
+    // return await insertInput(ctx, world._id, 'join', {
+    //   name,
+    //   character: characters[Math.floor(Math.random() * characters.length)].name,
+    //   description: `${DEFAULT_NAME} is a human player`,
+    //   tokenIdentifier: DEFAULT_NAME,
+    // });
   },
 });
 
+/** @deprecated — 人类玩家系统已移除，此 mutation 不再使用 */
 export const leaveWorld = mutation({
   args: {
     worldId: v.id('worlds'),
@@ -161,6 +152,34 @@ export const leaveWorld = mutation({
     await insertInput(ctx, world._id, 'leave', {
       playerId: existingPlayer.id,
     });
+  },
+});
+
+export const getSimSpeed = query({
+  args: { worldId: v.id('worlds') },
+  handler: async (ctx, args) => {
+    const worldStatus = await ctx.db
+      .query('worldStatus')
+      .withIndex('worldId', (q) => q.eq('worldId', args.worldId))
+      .unique();
+    return worldStatus?.simSpeed ?? '1x';
+  },
+});
+
+export const setSimSpeed = mutation({
+  args: {
+    worldId: v.id('worlds'),
+    speed: v.union(v.literal('paused'), v.literal('1x'), v.literal('2x'), v.literal('5x')),
+  },
+  handler: async (ctx, args) => {
+    const worldStatus = await ctx.db
+      .query('worldStatus')
+      .withIndex('worldId', (q) => q.eq('worldId', args.worldId))
+      .unique();
+    if (!worldStatus) {
+      throw new Error(`Invalid world ID: ${args.worldId}`);
+    }
+    await ctx.db.patch(worldStatus._id, { simSpeed: args.speed });
   },
 });
 

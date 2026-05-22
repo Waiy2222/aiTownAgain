@@ -54,7 +54,6 @@ https://github.com/michalochman/react-pixi-fiber/issues/145#issuecomment-5315492
                   <PixiGame
                     game={game}
                     worldId={worldId}
-                    engineId={engineId}
                     width={width}
                     height={height}
                     historicalTime={historicalTime}
@@ -72,7 +71,6 @@ https://github.com/michalochman/react-pixi-fiber/issues/145#issuecomment-5315492
         >
           <PlayerDetails
             worldId={worldId}
-            engineId={engineId}
             game={game}
             playerId={selectedElement?.id}
             setSelectedElement={setSelectedElement}

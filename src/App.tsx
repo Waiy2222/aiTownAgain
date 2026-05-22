@@ -12,9 +12,8 @@ import { useState } from 'react';
 import ReactModal from 'react-modal';
 import MusicButton from './components/buttons/MusicButton.tsx';
 import Button from './components/buttons/Button.tsx';
-import InteractButton from './components/buttons/InteractButton.tsx';
 import FreezeButton from './components/FreezeButton.tsx';
-import { MAX_HUMAN_PLAYERS } from '../convex/constants.ts';
+import SimControl from './components/SimControl.tsx';
 import PoweredByConvex from './components/PoweredByConvex.tsx';
 
 export default function Home() {
@@ -33,23 +32,15 @@ export default function Home() {
         <div className="font-body">
           <h1 className="text-center text-6xl font-bold font-display game-title">帮助</h1>
           <p>
-            欢迎来到 AI 小镇。AI 小镇同时支持匿名<i>观战</i>和登录后的<i>互动</i>模式。
+            欢迎来到 AI 小镇。这是一个纯观战模式的虚拟小镇，AI 角色在此自主生活、聊天和社交。
           </p>
           <h2 className="text-4xl mt-4">观战</h2>
           <p>
-            点击并拖动以在小镇中移动，滚动鼠标滚轮进行缩放。你可以点击单个角色来查看其聊天历史记录。
+            点击并拖动以在小镇中移动，滚动鼠标滚轮进行缩放。你可以点击单个 AI 角色来查看其信息和聊天历史记录。
           </p>
-          <h2 className="text-4xl mt-4">互动</h2>
+          <h2 className="text-4xl mt-4">管理面板</h2>
           <p>
-            如果你登录，就可以加入模拟环境并直接与不同的智能体交谈！登录后，点击“互动”按钮，你的角色将出现在地图上的某个位置，脚下会显示高亮圆圈。
-          </p>
-          <p className="text-2xl mt-2">操作控制：</p>
-          <p className="mt-4">点击地图进行导航移动。</p>
-          <p className="mt-4">
-            要与智能体交谈，请点击他们，然后点击“开始对话”，这会请求他们向你走来。一旦他们靠近，对话就会开始，你们可以互相交流。你可以随时通过关闭对话面板或走开来离开对话。他们也可能主动向你发起对话——你会在消息面板中看到接受按钮。
-          </p>
-          <p className="mt-4">
-            AI 小镇一次仅支持 {MAX_HUMAN_PLAYERS} 名人类用户同时在线。如果你闲置五分钟，系统将自动把你从模拟环境中移除。
+            左侧面板可用于场景选择、NPC 管理和手动触发对话。顶部仪表盘实时展示世界运行数据。
           </p>
         </div>
       </ReactModal>
@@ -82,11 +73,11 @@ export default function Home() {
         <footer className="justify-end bottom-0 left-0 w-full flex items-center mt-4 gap-3 p-6 flex-wrap pointer-events-none">
           <div className="flex gap-4 flex-grow pointer-events-none">
             <FreezeButton />
+            <SimControl />
             <MusicButton />
             <Button href="https://github.com/lxp135/ai-town-cn" imgUrl={starImg}>
               Star
             </Button>
-            <InteractButton />
             <Button imgUrl={helpImg} onClick={() => setHelpModalOpen(true)}>
               帮助
             </Button>
