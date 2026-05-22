@@ -183,6 +183,7 @@ export class Agent {
               otherPlayerId: otherPlayer.id,
               messageUuid,
               type: 'start',
+              modelName: this.modelName,
             });
             return;
           } else {
@@ -204,6 +205,7 @@ export class Agent {
             otherPlayerId: otherPlayer.id,
             messageUuid,
             type: 'leave',
+            modelName: this.modelName,
           });
           return;
         }
@@ -231,6 +233,7 @@ export class Agent {
           otherPlayerId: otherPlayer.id,
           messageUuid,
           type: 'continue',
+          modelName: this.modelName,
         });
         return;
       }
