@@ -21,6 +21,7 @@ export async function startConversationMessage(
   conversationId: GameId<'conversations'>,
   playerId: GameId<'players'>,
   otherPlayerId: GameId<'players'>,
+  modelName?: string,
 ): Promise<string> {
   const { player, otherPlayer, agent, otherAgent, lastConversation } = await ctx.runQuery(
     selfInternal.queryPromptData,
@@ -56,6 +57,7 @@ export async function startConversationMessage(
   const fullPrompt = prompt + '\n' + lastPrompt;
 
   const { content } = await chatCompletion({
+    model: modelName,
     messages: [
       {
         role: 'system',
@@ -81,6 +83,7 @@ export async function continueConversationMessage(
   conversationId: GameId<'conversations'>,
   playerId: GameId<'players'>,
   otherPlayerId: GameId<'players'>,
+  modelName?: string,
 ): Promise<string> {
   const { player, otherPlayer, conversation, agent, otherAgent } = await ctx.runQuery(
     selfInternal.queryPromptData,
@@ -122,6 +125,7 @@ export async function continueConversationMessage(
   llmMessages.push({ role: 'user', content: lastPrompt });
 
   const { content } = await chatCompletion({
+    model: modelName,
     messages: llmMessages,
     max_tokens: 300,
     stop: stopWords(otherPlayer.name, player.name),
@@ -135,6 +139,7 @@ export async function leaveConversationMessage(
   conversationId: GameId<'conversations'>,
   playerId: GameId<'players'>,
   otherPlayerId: GameId<'players'>,
+  modelName?: string,
 ): Promise<string> {
   const { player, otherPlayer, conversation, agent, otherAgent } = await ctx.runQuery(
     selfInternal.queryPromptData,
@@ -170,6 +175,7 @@ export async function leaveConversationMessage(
   llmMessages.push({ role: 'user', content: lastPrompt });
 
   const { content } = await chatCompletion({
+    model: modelName,
     messages: llmMessages,
     max_tokens: 300,
     stop: stopWords(otherPlayer.name, player.name),

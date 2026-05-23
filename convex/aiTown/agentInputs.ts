@@ -8,6 +8,7 @@ import { point } from '../util/types';
 import { Descriptions } from '../../data/characters';
 import { AgentDescription } from './agentDescription';
 import { Agent } from './agent';
+import { validateDescriptionIndex } from '../util/validation';
 
 export const agentInputs = {
   finishRememberConversation: inputHandler({
@@ -119,8 +120,13 @@ export const agentInputs = {
   createAgent: inputHandler({
     args: {
       descriptionIndex: v.number(),
+      model: v.optional(v.string()),
     },
     handler: (game, now, args) => {
+      const indexError = validateDescriptionIndex(args.descriptionIndex, Descriptions.length);
+      if (indexError) {
+        throw new Error(indexError);
+      }
       const description = Descriptions[args.descriptionIndex];
       const playerId = Player.join(
         game,
@@ -135,6 +141,7 @@ export const agentInputs = {
         new Agent({
           id: agentId,
           playerId: playerId,
+          modelName: args.model ?? 'qwen3.5-flash',
           inProgressOperation: undefined,
           lastConversation: undefined,
           lastInviteAttempt: undefined,
@@ -150,6 +157,26 @@ export const agentInputs = {
         }),
       );
       return { agentId };
+    },
+  }),
+  removeAgent: inputHandler({
+    args: {
+      agentId,
+    },
+    handler: (game, now, args) => {
+      const id = parseGameId('agents', args.agentId);
+      const agent = game.world.agents.get(id);
+      if (!agent) {
+        throw new Error(`找不到 Agent: ${id}`);
+      }
+      const player = game.world.players.get(agent.playerId);
+      if (player) {
+        player.leave(game, now);
+      }
+      game.world.agents.delete(id);
+      game.agentDescriptions.delete(id);
+      game.descriptionsModified = true;
+      return null;
     },
   }),
 };
