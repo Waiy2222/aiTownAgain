@@ -10,7 +10,7 @@
     "dev:backend": "convex dev --tail-logs",
     "dev:frontend": "vite",
     "dashboard": "convex dashboard",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --verbose",
+    "test": "jest --verbose",
     "level-editor": "vite src/editor/",
     "le": "vite src/editor/"
   },
