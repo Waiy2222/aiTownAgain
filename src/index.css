@@ -183,3 +183,56 @@ p[contenteditable='true']:empty::before {
 .shape-top-left-corner {
   clip-path: polygon(0 0, 100% 0, 0 100%);
 }
+
+/* Top bar */
+.topbar {
+  background: rgb(23, 20, 33);
+  border-bottom: 3px solid rgb(35, 38, 58);
+  min-height: 48px;
+}
+
+/* Scene selector */
+.scene-selector-btn {
+  background: rgb(35, 38, 58);
+  border: 2px solid rgb(23, 20, 33);
+  padding: 4px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.scene-selector-btn:hover {
+  background: rgb(45, 48, 68);
+}
+
+.scene-dropdown {
+  border-radius: 2px;
+}
+
+.scene-dropdown button:first-child {
+  border-bottom: 1px solid rgb(23, 20, 33);
+}
+
+.scene-dropdown button:not(:last-child) {
+  border-bottom: 1px solid rgb(23, 20, 33);
+}
+
+/* Sidebar tabs */
+.sidebar-tabs {
+  border-bottom: 2px solid rgb(23, 20, 33);
+}
+
+.sidebar-tab {
+  border: 2px solid transparent;
+  border-bottom: none;
+  cursor: pointer;
+}
+
+.sidebar-tab-active {
+  border-color: rgb(23, 20, 33);
+  border-bottom-color: rgb(35, 38, 58);
+  margin-bottom: -2px;
+}
+
+.sidebar-tab:hover:not(.sidebar-tab-active) {
+  border-color: rgba(23, 20, 33, 0.5);
+}

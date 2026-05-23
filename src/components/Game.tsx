@@ -13,27 +13,36 @@ import { GameId } from '../../convex/aiTown/ids.ts';
 import { useServerGame } from '../hooks/serverGame.ts';
 import ForceConversation from './ForceConversation.tsx';
 import NPCModelTooltip from './NPCModelTooltip.tsx';
+import Sidebar, { TabDef } from './Sidebar.tsx';
+import { Id } from '../../convex/_generated/dataModel';
 
 export const SHOW_DEBUG_UI = !!import.meta.env.VITE_SHOW_DEBUG_UI;
 
-export default function Game() {
+const SIDEBAR_TABS: TabDef[] = [
+  { id: 'details', label: 'Details' },
+];
+
+export default function Game({
+  worldId,
+  engineId,
+}: {
+  worldId: Id<'worlds'>;
+  engineId: Id<'engines'>;
+}) {
   const convex = useConvex();
   const [selectedElement, setSelectedElement] = useState<{
     kind: 'player';
     id: GameId<'players'>;
   }>();
+  const [activeTab, setActiveTab] = useState(SIDEBAR_TABS[0].id);
   const [gameWrapperRef, { width, height }] = useElementSize();
-
-  const worldStatus = useQuery(api.world.defaultWorldStatus);
-  const worldId = worldStatus?.worldId;
-  const engineId = worldStatus?.engineId;
 
   const game = useServerGame(worldId);
 
   // Send a periodic heartbeat to our world to keep it alive.
   useWorldHeartbeat();
 
-  const worldState = useQuery(api.world.worldState, worldId ? { worldId } : 'skip');
+  const worldState = useQuery(api.world.worldState, { worldId });
   const { historicalTime, timeManager } = useHistoricalTime(worldState?.engine);
 
   const scrollViewRef = useRef<HTMLDivElement>(null);
@@ -50,13 +59,13 @@ export default function Game() {
     setTooltip(null);
   };
 
-  if (!worldId || !engineId || !game) {
+  if (!game) {
     return null;
   }
   return (
     <>
       {SHOW_DEBUG_UI && <DebugTimeManager timeManager={timeManager} width={200} height={100} />}
-      <div className="mx-auto w-full max-w grid grid-rows-[240px_1fr] lg:grid-rows-[1fr] lg:grid-cols-[1fr_auto] lg:grow max-w-[1400px] min-h-[480px] game-frame">
+      <div className="mx-auto w-full max-w grid grid-rows-[240px_1fr] lg:grid-rows-[1fr] lg:grid-cols-[1fr_auto] lg:grow max-w-[1400px] min-h-0 flex-1 game-frame">
         {/* Game area */}
         <div className="relative overflow-hidden bg-brown-900" ref={gameWrapperRef}>
           <div className="absolute inset-0">
@@ -82,20 +91,24 @@ https://github.com/michalochman/react-pixi-fiber/issues/145#issuecomment-5315492
           </div>
         </div>
         {/* Right column area */}
-        <div
-          className="flex flex-col overflow-y-auto shrink-0 px-4 py-6 sm:px-6 lg:w-96 xl:pr-6 border-t-8 sm:border-t-0 sm:border-l-8 border-brown-900  bg-brown-800 text-brown-100"
-          ref={scrollViewRef}
+        <Sidebar
+          tabs={SIDEBAR_TABS}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          scrollViewRef={scrollViewRef}
         >
-          <PlayerDetails
-            worldId={worldId}
-            game={game}
-            playerId={selectedElement?.id}
-            setSelectedElement={setSelectedElement}
-            scrollViewRef={scrollViewRef}
-          />
+          {activeTab === 'details' && (
+            <PlayerDetails
+              worldId={worldId}
+              game={game}
+              playerId={selectedElement?.id}
+              setSelectedElement={setSelectedElement}
+              scrollViewRef={scrollViewRef}
+            />
+          )}
           <hr className="my-4 border-brown-700" />
           <ForceConversation worldId={worldId} engineId={engineId} />
-        </div>
+        </Sidebar>
       </div>
       <NPCModelTooltip data={tooltip} />
     </>
