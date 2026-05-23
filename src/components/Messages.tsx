@@ -8,13 +8,16 @@ import { useEffect, useRef } from 'react';
 export function Messages({
   worldId,
   conversation,
+  inConversationWithMe,
   scrollViewRef,
 }: {
   worldId: Id<'worlds'>;
   conversation:
     | { kind: 'active'; doc: Conversation }
     | { kind: 'archived'; doc: Doc<'archivedConversations'> };
+  inConversationWithMe: boolean;
   scrollViewRef: React.RefObject<HTMLDivElement>;
+  humanPlayer?: { id: string };
 }) {
   const descriptions = useQuery(api.world.gameDescriptions, { worldId });
   const messages = useQuery(api.messages.listMessages, {
@@ -143,6 +146,9 @@ export function Messages({
               </p>
             </div>
           </div>
+        )}
+        {inConversationWithMe && conversation.kind === 'active' && (
+          <div className="text-brown-500 text-xs text-center mt-2">对话进行中…</div>
         )}
       </div>
     </div>
